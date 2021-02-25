@@ -1,5 +1,5 @@
-// variable to store and loop through scheduler
-var currentDay = [
+// Array containing time objects to loop through to create day planner
+let currentDay = [
     {
         id: "0",
         time12: "09",
@@ -59,10 +59,64 @@ var currentDay = [
     {
         id: "8",
         time12: "05",
-        time: "17",
+        time24: "17",
         amPm: "pm",
         task: ""
     },
     
 ]
 
+// Gets date for Jumbotron
+function getJumboDate() {
+    let currentDate = moment().format('dddd, MMMM Do');
+    $("#currentDay").text(currentDate);
+}
+
+getJumboDate();
+
+currentDay.forEach(function(currentHour) {
+    // creates overall rows
+    let overallRow = $("<form>").attr({
+        "class": "row"
+    });
+    $(".container").append(overallRow);
+
+    // creates hour field
+    let hourColumn = $("<div>")
+        .text(`${currentHour.time12}${currentHour.amPm}`)
+        .attr({
+            "class": "col-md-2 hour"
+    });
+
+    // creates task field
+    let taskColumn = $("<div>")
+        .attr({
+            "class": "col-md-9 description p-0"
+        });
+    let taskData = $("<textarea>");
+    taskColumn.append(taskData);
+    taskData.attr("id", currentHour.id);
+    if (currentHour.time24 < moment().format("HH")) {
+        taskData.attr ({
+            "class": "past", 
+        })
+    } else if (currentHour.time24 === moment().format("HH")) {
+        taskData.attr({
+            "class": "present"
+        })
+    } else if (currentHour.time24 > moment().format("HH")) {
+        taskData.attr({
+            "class": "future"
+        })
+    }
+
+    // creates save button
+    let saveButton = $("<i class='far fa-save fa-lg'></i>")
+    let saveTask = $("<button>")
+        .attr({
+            "class": "col-md-1 saveBtn"
+    });
+
+    saveTask.append(saveButton);
+    overallRow.append(hourColumn, taskColumn, saveTask);
+})
