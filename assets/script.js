@@ -75,48 +75,70 @@ function getJumboDate() {
 getJumboDate();
 
 currentDay.forEach(function(currentHour) {
-    // creates overall rows
-    let overallRow = $("<form>").attr({
-        "class": "row"
-    });
+    // Creates overall rows
+    let overallRow = $("<form>").attr({"class": "row"});
     $(".container").append(overallRow);
 
-    // creates hour field
+    // Creates hour field
     let hourColumn = $("<div>")
         .text(`${currentHour.time12}${currentHour.amPm}`)
-        .attr({
-            "class": "col-md-2 hour"
-    });
+        .attr({"class": "col-md-2 hour"});
 
-    // creates task field
-    let taskColumn = $("<div>")
-        .attr({
-            "class": "col-md-9 description p-0"
-        });
+    // Creates task field
+    let taskColumn = $("<div>").attr({"class": "col-md-9 description p-0"});
     let taskData = $("<textarea>");
     taskColumn.append(taskData);
     taskData.attr("id", currentHour.id);
+
+    // Colors the task field
     if (currentHour.time24 < moment().format("HH")) {
-        taskData.attr ({
-            "class": "past", 
-        })
+        taskData.attr ({"class": "past"})
     } else if (currentHour.time24 === moment().format("HH")) {
-        taskData.attr({
-            "class": "present"
-        })
+        taskData.attr({"class": "present"})
     } else if (currentHour.time24 > moment().format("HH")) {
-        taskData.attr({
-            "class": "future"
-        })
+        taskData.attr({"class": "future"})
     }
 
-    // creates save button
+    // Creates save button
     let saveButton = $("<i class='far fa-save fa-lg'></i>")
-    let saveTask = $("<button>")
-        .attr({
-            "class": "col-md-1 saveBtn"
-    });
+    let saveTask = $("<button>").attr({"class": "col-md-1 saveBtn"});
 
+    // Appends all elements together to display
     saveTask.append(saveButton);
     overallRow.append(hourColumn, taskColumn, saveTask);
+})
+
+// Saves tasks to local storage
+function saveTasks() {
+    localStorage.setItem("currentDay", JSON.stringify(currentDay));
+}
+
+// Loads tasks from local storage
+function loadTasks() {
+    currentDay.forEach(function(hourTasks) {
+        $(`#${hourTasks.id}`).val(hourTasks.task);
+    })
+}
+
+// Sets tasks to view if any exist
+function init() {
+    let storedTasks = JSON.parse(localStorage.getItem("currentDay"));
+
+    if (storedTasks) {
+        currentDay = storedTasks;
+    }
+
+    saveTasks();
+    loadTasks();
+}
+
+init();
+
+// Saves data to local storage when button is clicked
+$(".saveBtn").on("click", function(event) {
+    event.preventDefault();
+    let index = $(this).siblings(".description").children().attr("id");
+    currentDay[index].task = $(this).siblings(".description").children().val();
+    saveTasks();
+    loadTasks();
 })
